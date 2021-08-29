@@ -1,0 +1,101 @@
+nginx -t 这个命令用于测试配置文件语法是否准确无误
+
+去掉语法高亮
+:nohlsearch或者:/nohl
+
+FRP  由于是服务器，最好以后台方式启动
+
+nohup ./frpc -c ./frpc.ini &> frpc.log &
+nohup ./frps -c ./frps.ini &> frps.log &
+
+运维  服务重载  systemctl reload nginx
+
+查看主机名  hostname
+
+chmod -R 765 *
+所有者 = rwx = 4+2+1 = 7
+所属组 = rw- = 4+2 = 6
+其他人 = r-x = 4+1 = 5
+
+静态IP
+
+vim /etc/sysconfig/network-scripts/ifcfg-ens33
+
+TYPE=Ethernet
+PROXY_METHOD=none
+BROWSER_ONLY=no
+BOOTPROTO=static
+IPADDR=192.168.10.140
+GATEWAY=192.168.10.2
+DNS1=192.168.10.140
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+NAME=ens33
+UUID=c66b2c58-f32c-40b3-8dff-efb5a9dd38f2
+DEVICE=ens33
+ONBOOT=yes
+
+DNS设置
+/etc/resolv.conf
+
+
+查看版本
+cat /etc/redhat-release
+
+SElinux
+查看状态  getenforce
+临时禁用	setenforce 0
+临时启用	setenforce 1
+永久关闭	vim /etc/selinux/config
+	SELINUX=enforcing改为SELINUX=disabled
+
+查看隐藏文件
+ls -a	=>	ll -a
+
+启用/禁用网卡
+ifconfig ens33 up		=>	ifup ens33
+ifconfig ens33 down		=>	ifdown ens33
+
+修改配置文件
+cd /etc/sysconfig/network-scripts
+vi ifcfg-ens33   <ONBOOT=no   ONBOOT=yes>
+
+访问http服务器
+curl www.baidu.com
+
+防火墙firewalld
+启动：systemctl start firewalld
+关闭：systemctl stop firewalld
+重启：systemctl restart firewlld
+查看状态：systemctl status firewalld 
+开机禁用：systemctl disable firewalld
+开机启用：systemctl enable firewalld
+
+防火墙端口
+开启80端口：firewall-cmd --zone=public --add-port=80/tcp --permanent
+删除80端口：firewall-cmd --zone=public --remove-port=80/tcp --permanent
+/*命令含义：
+--zone #作用域
+--add-port=80/tcp #添加端口，格式为：端口/通讯协议
+--permanent #永久生效，没有此参数重启后失效*/
+常用命令介绍
+firewall-cmd --list-ports	#查看已经开放的端口
+firewall-cmd --state		##查看防火墙状态，是否是running
+firewall-cmd --reload	##重新载入配置，比如添加规则之后，需要执行此命令
+firewall-cmd --get-zones	##列出支持的zone
+firewall-cmd --get-services	##列出支持的服务，在列表中的服务是放行的
+firewall-cmd --query-service ftp	##查看ftp服务是否支持，返回yes或者no
+firewall-cmd --add-service=ftp		##临时开放ftp服务
+firewall-cmd --add-service=ftp --permanent	##永久开放ftp服务
+firewall-cmd --remove-service=ftp --permanent	##永久移除ftp服务
+firewall-cmd --add-port=80/tcp --permanent	##永久添加80端口?
+iptables -L -n 				##查看规则，这个命令是和iptables的相同的
+man firewall-cmd			##查看帮助
+
+VNC安装
+yum install -y vnc-server
